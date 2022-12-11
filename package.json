@@ -1,0 +1,28 @@
+{
+  "name": "simple-websockets-chat-app",
+  "version": "1.0.0",
+  "description": "This is the code and template for the simple-websocket-chat-app.  There are three functions contained within the directories and a SAM template that wires them up to a DynamoDB table and provides the minimal set of permissions needed to run the app:",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aws-samples/simple-websockets-chat-app.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/aws-samples/simple-websockets-chat-app/issues"
+  },
+  "homepage": "https://github.com/aws-samples/simple-websockets-chat-app#readme",
+  "workspaces": [
+    "packages/*"
+  ],
+  "devDependencies": {
+    "@trivago/prettier-plugin-sort-imports": "^4.0.0",
+    "prettier": "^2.8.1",
+    "typescript": "^4.9.4"
+  }
+}
