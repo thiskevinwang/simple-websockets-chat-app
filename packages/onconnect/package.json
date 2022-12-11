@@ -6,7 +6,8 @@
   "author": "SAM CLI",
   "license": "MIT",
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "clean": "rm -rf ./dist"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.226.0",
