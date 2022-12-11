@@ -17,6 +17,8 @@ exports.handler = async (event: APIGatewayEvent) => {
         TableName: TABLE_NAME,
         Item: {
           connectionId: event.requestContext.connectionId,
+          // set TTL to 10 minutes
+          TTL: Math.floor(Date.now() / 1000) + 60 * 10,
         },
       }),
     );

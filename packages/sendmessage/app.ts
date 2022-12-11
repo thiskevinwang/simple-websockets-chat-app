@@ -1,8 +1,4 @@
-import {
-  ApiGatewayManagementApi,
-  ApiGatewayManagementApiServiceException,
-  GoneException,
-} from "@aws-sdk/client-apigatewaymanagementapi";
+import { ApiGatewayManagementApi } from "@aws-sdk/client-apigatewaymanagementapi";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import {
   DeleteCommand,
@@ -26,6 +22,14 @@ export const handler = async (event: APIGatewayEvent) => {
       new ScanCommand({
         TableName: TABLE_NAME,
         ProjectionExpression: "connectionId",
+        // filter out items whose TTL has expired
+        FilterExpression: "#TTL > :now",
+        ExpressionAttributeValues: {
+          ":now": Math.floor(Date.now() / 1000),
+        },
+        ExpressionAttributeNames: {
+          "#TTL": "TTL",
+        },
       }),
     );
   } catch (e: any) {
@@ -35,16 +39,21 @@ export const handler = async (event: APIGatewayEvent) => {
   const apigwManagementApi = new ApiGatewayManagementApi({
     apiVersion: "2018-11-29",
     endpoint:
-      event.requestContext.domainName + "/" + event.requestContext.stage,
+      "https://" +
+      event.requestContext.domainName +
+      "/" +
+      event.requestContext.stage,
   });
 
-  const postData = JSON.parse(event.body!).data;
+  const postData: string = JSON.parse(event.body!).data;
 
   const postCalls = connectionData.Items?.map(async ({ connectionId }) => {
     try {
       await apigwManagementApi.postToConnection({
         ConnectionId: connectionId,
+        // @ts-expect-error - string works here
         Data: postData,
+        // Data: str2ab(postData),
       });
     } catch (e: any) {
       if (e.statusCode === 410) {
@@ -66,3 +75,12 @@ export const handler = async (event: APIGatewayEvent) => {
 
   return { statusCode: 200, body: "Data sent." };
 };
+
+// function str2ab(str: string) {
+//   var buf = new ArrayBuffer(str.length * 2); // 2 bytes for each char
+//   var bufView = new Uint8Array(buf);
+//   for (var i = 0, strLen = str.length; i < strLen; i++) {
+//     bufView[i] = str.charCodeAt(i);
+//   }
+//   return bufView;
+// }

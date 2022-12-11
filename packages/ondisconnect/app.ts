@@ -1,5 +1,5 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
+import { DeleteCommand, DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 
 import type { APIGatewayEvent } from "aws-lambda";
 
@@ -16,23 +16,14 @@ const { TABLE_NAME } = process.env;
 // $disconnect is a best-effort event.
 // API Gateway will try its best to deliver the $disconnect event to your integration, but it cannot guarantee delivery.
 
-const AWS = require("aws-sdk");
-
-const ddb = new AWS.DynamoDB.DocumentClient({
-  apiVersion: "2012-08-10",
-  region: process.env.AWS_REGION,
-});
-
 exports.handler = async (event: APIGatewayEvent) => {
-  const deleteParams = {
-    TableName: process.env.TABLE_NAME,
-    Key: {
-      connectionId: event.requestContext.connectionId,
-    },
-  };
-
   try {
-    await ddb.delete(deleteParams).promise();
+    await ddbDocClient.send(
+      new DeleteCommand({
+        TableName: TABLE_NAME,
+        Key: { connectionId: event.requestContext.connectionId },
+      }),
+    );
   } catch (err) {
     return {
       statusCode: 500,
